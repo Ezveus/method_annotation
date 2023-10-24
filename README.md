@@ -1,6 +1,6 @@
 # MethodAnnotation
 
-MethodAnnotation You can define the annotation function method.
+You can define the annotation function method.
 Note translation function can also be added simply tagged to only cross-processing from applications.
 
 ## Installation
@@ -13,354 +13,403 @@ gem 'method_annotation'
 
 install it yourself as:
 
-    $ gem install method_annotation
+```shell
+gem install method_annotation
+```
 
 ## Usage
 
 First, let's create your MethodAnnotation class
 
-    require 'method_annotation'
+```ruby
+require 'method_annotation'
 
-    class MyMethodAnnotation < MethodAnnotation::Base
-    end
+class MyMethodAnnotation < MethodAnnotation::Base
+end
+```
 
 Next, let's add your class to the method
 
-    class Foo
-      # To include a MethodAnnotation::Enable to enable MethodAnnotation
-      include MethodAnnotation::Enable
+```ruby
+class Foo
+  # To include a MethodAnnotation::Enable to enable MethodAnnotation
+  include MethodAnnotation::Enable
 
-      # write annotaion_name or 
-      # "#{your annotation class}.name.underscore"
-      # ex) MyMethodAnnotation => my_method_annotation
-      my_method_annotation
-      def bar
-      end
-    end
+  # write annotation_name or 
+  # "#{your annotation class}.name.underscore"
+  # ex) MyMethodAnnotation => my_method_annotation
+  my_method_annotation
 
-You can define an annotation in this way
+  def bar
+  end
+end
+```
 
+You can define an annotation in this way.
 
-About MethodAnnotation
+## About MethodAnnotation
+
 - .annotation_name .annotation_name=
 
   You can set forth a annotation name
 
-      class MyMethodAnnotation < MethodAnnotation::Base
-        self.annotation_name = 'my_method_annotation'
-      end
+```ruby
+class MyMethodAnnotation < MethodAnnotation::Base
+  self.annotation_name = 'my_method_annotation'
+end
 
-      MyMethodAnnotation.annotation_name
-      => "my_method_annotation"
+MyMethodAnnotation.annotation_name
+# => "my_method_annotation"
+```
 
 - .describe .describe=
 
   You can set forth a description
 
-      class MyMethodAnnotation < MethodAnnotation::Base
-        self.describe = 'sample annotation'
-      end
+```ruby
+class MyMethodAnnotation < MethodAnnotation::Base
+  self.describe = 'sample annotation'
+end
 
-      MyMethodAnnotation.describe
-      => "sample annotation"
+MyMethodAnnotation.describe
+# => "sample annotation"
+```
 
 - .list
 
   Your class that defines your class, you get a list of methods
 
-      MyMethodAnnotation.list
-      => [[Foo, :bar]]
+```ruby
+MyMethodAnnotation.list
+# => [[Foo, :bar]]
+```
 
 - .before .after
 
   You can define the processing to be performed in method execution before/after the target
 
-      class MyMethodAnnotation < MethodAnnotation::Base
-        # args is the argument of the method of target
-        # param class is MethodAnnotation::Parameter
-        before do |param|
-          puts 'before'
-        end
+```ruby
+class MyMethodAnnotation < MethodAnnotation::Base
+  # args is the argument of the method of target
+  # param class is MethodAnnotation::Parameter
+  before do |_param|
+    puts 'before'
+  end
 
-        # args is the argument of the method of target
-        after do |param|
-          puts 'after'
-        end
-      end
-    
-      class Foo
-        include MethodAnnotation::Enable
+  # args is the argument of the method of target
+  after do |_param|
+    puts 'after'
+  end
+end
 
-        my_method_annotation
-        def bar
-          puts 'bar'
-        end
-      end
+class Foo
+  include MethodAnnotation::Enable
 
-      Foo.new.bar
-      => before
-      => bar
-      => after
+  my_method_annotation
+
+  def bar
+    puts 'bar'
+  end
+end
+
+Foo.new.bar
+# => before
+# => bar
+# => after
+```
 
 - .around
 
   It is possible to define a process that encompasses the method of the target
 
-      class MyMethodAnnotation < MethodAnnotation::Base
-        # original is proc methods of target
-        around do |param| 
-          puts 'before'
-          return_value = param.original.call(param)
-          puts 'after'
+```ruby
+class MyMethodAnnotation < MethodAnnotation::Base
+  # original is proc methods of target
+  around do |param|
+    puts 'before'
+    return_value = param.original.call(param)
+    puts 'after'
 
-          return_value
-        end
-      end
-    
-      class Foo
-        include MethodAnnotation::Enable
+    return_value
+  end
+end
 
-        my_method_annotation
-        def bar
-          puts 'bar'
-        end
-      end
+class Foo
+  include MethodAnnotation::Enable
 
-      Foo.new.bar
-      => before
-      => bar
-      => after
+  my_method_annotation
+
+  def bar
+    puts 'bar'
+  end
+end
+
+Foo.new.bar
+# => before
+# => bar
+# => after
+```
 
 - MethodAnnotation::Async
 
   It will be performed asynchronously.
 
-      require 'method_annotation'
+```ruby
+require 'method_annotation'
 
-      class Foo
-        include MethodAnnotation::Enable
+class Foo
+  include MethodAnnotation::Enable
 
-        def hoge
-          bar
-          puts 'hoge'
-        end
+  def hoge
+    bar
+    puts 'hoge'
+  end
 
-        async
-        def bar
-          sleep 3
-          puts 'bar'
-        end
-      end
+  async
 
-      Foo.new.hoge
-      => hoge
-      => bar
+  def bar
+    sleep 3
+    puts 'bar'
+  end
+end
+
+Foo.new.hoge
+# => hoge
+# => bar
+```
 
 - MethodAnnotation::Cache
 
   It is cached after the second time the execution result of the method is returned from the cache.
 
-      require 'method_annotation'
+```ruby
+require 'method_annotation'
 
-      class Foo
-        include MethodAnnotation::Enable
+class Foo
+  include MethodAnnotation::Enable
 
-        cache
-        def bar
-          puts 'exec'
-          'return value'
-        end
-      end
+  cache
 
-      foo = Foo.new
-      foo.bar
-      => exec
-      => "return value"
+  def bar
+    puts 'exec'
+    'return value'
+  end
+end
 
-      # The second time is not puts 'exec'
-      foo.bar
-      => "return value"
+foo = Foo.new
+foo.bar
+# => exec
+# => "return value"
+
+# The second time is not puts 'exec'
+foo.bar
+# => "return value"
+```
 
 - MethodAnnotation::Lazy
 
   This method is lazy.
   It will be executed at the timing when trying to use the return value.
 
-      require 'method_annotation'
+```ruby
+require 'method_annotation'
 
-      class Foo
-        include MethodAnnotation::Enable
+class Foo
+  include MethodAnnotation::Enable
 
-        lazy
-        def bar
-          puts 'bar'
-          'return value'
-        end
-      end
+  lazy
 
-      value = Foo.new.bar
-      # It is run by the return value is used timing
-      value == 'hogehoge'
-      => bar
+  def bar
+    puts 'bar'
+    'return value'
+  end
+end
+
+value = Foo.new.bar
+# It is run by the return value is used timing
+value == 'hogehoge'
+# => bar
+```
 
 - MethodAnnotation::WillImplemented
 
   It method is expected to be implemented.
 
-      require 'method_annotation'
+```ruby
+require 'method_annotation'
 
-      class Foo
-        include MethodAnnotation::Enable
+class Foo
+  include MethodAnnotation::Enable
 
-        will_implemented
-        def bar
-        end
-      end
+  will_implemented
 
-      class Hoge
+  def bar
+  end
+end
 
-        def bar
-          puts 'hoge'
-        end
-      end
+class Hoge
 
-      class Hogehoge
-      end
+  def bar
+    puts 'hoge'
+  end
+end
 
-      Foo.new.bar
-      => NotImplementedError: Please implement Foo#bar
+class Hogehoge
+end
 
-      Hoge.new.bar
-      => "hoge"
+Foo.new.bar
+# => NotImplementedError: Please implement Foo#bar
 
-      Hogehoge.new.bar
-      => NotImplementedError: Please implement Hogehoge#bar
+Hoge.new.bar
+# => "hoge"
+
+Hogehoge.new.bar
+# => NotImplementedError: Please implement Hogehoge#bar
+```
 
 - MethodAnnotation::Trace
 
   It is will trace the method. This is still a prototype.
 
-      require 'method_annotation'
+```ruby
+require 'method_annotation'
 
-      class Foo
-        include MethodAnnotation::Enable
+class Foo
+  include MethodAnnotation::Enable
 
-        trace
-        def bar
-          Hoge.new.hogehoge
-        end
-      end
+  trace
 
-      class Hoge
-        def hogehoge
-        end
-      end
+  def bar
+    Hoge.new.hogehoge
+  end
+end
 
-      Foo.new.bar
-      => <===== Foo.bar trace =====>
-      => (irb):15: in `hogehoge'
-      => (irb):9: in `bar'
-      => <=========================>
+class Hoge
+  def hogehoge
+  end
+end
 
-Example1
+Foo.new.bar
+# => <===== Foo.bar trace =====>
+# => (irb):15: in `hogehoge'
+# => (irb):9: in `bar'
+# => <=========================>
+```
 
-    class PutsArg < MethodAnnotation::Base
-      self.annotation_name = 'puts_arg'
-      self.describe = 'output the arguments of the method'
+## Examples
 
-      before do |params| 
-        puts '-------args-------'
-        puts *params.args
-        puts '------------------'
-      end
-    end
-    
-    class Foo
-      include MethodAnnotation::Enable
+### Example 1
 
-      puts_arg
-      def hoge(arg1, arg2)
-        puts 'hoge'
-      end
+```ruby
+class PutsArg < MethodAnnotation::Base
+  self.annotation_name = 'puts_arg'
+  self.describe = 'output the arguments of the method'
 
-      puts_arg
-      def hogehoge(a: nil, b: nil)
-        puts 'hogehoge'
-      end
-    end   
+  before do |params|
+    puts '-------args-------'
+    puts *params.args
+    puts '------------------'
+  end
+end
 
-    Foo.new.hoge('abc', 123)
-    => -------args-------
-    => abc
-    => 123
-    => ------------------
-    => hoge
-    
-    Foo.new.hogehoge(a: 'xyz')
-    => -------args-------
-    => {:a=>"xyz"}
-    => ------------------
-    => hogehoge
+class Foo
+  include MethodAnnotation::Enable
 
-Example2
+  puts_arg
 
-    class TimeMeasurement < MethodAnnotation::Base
-      self.describe = 'measure the processing time of the method'
+  def hoge(arg1, arg2)
+    puts 'hoge'
+  end
 
-      around do |param| 
-        start = Time.now
-        return_value = param.original.call(param)
-        puts "#{Time.now - start} sec"
+  puts_arg
 
-        return_value
-      end
-    end
-    
-    class Bar
-      include MethodAnnotation::Enable
-      
-      time_measurement
-      def hoge(sleep_sec)
-        sleep sleep_sec
-      end
-    end
-    
-    Bar.new.hoge(5)
-    => 5.001199044 sec
+  def hogehoge(a: nil, b: nil)
+    puts 'hogehoge'
+  end
+end
 
-Example3
+Foo.new.hoge('abc', 123)
+# => -------args-------
+# => abc
+# => 123
+# => ------------------
+# => hoge
 
-    class ArgsToString < MethodAnnotation::Base
-      self.describe = 'convert the arguments to string'
+Foo.new.hogehoge(a: 'xyz')
+# => -------args-------
+# => {:a=>"xyz"}
+# => ------------------
+# => hogehoge
+```
 
-      around do |param| 
-        remake_param = MethodAnnotation::Parameter.new(args: param.args.map(&:to_s))
-        param.original.call(remake_param)
-      end
-    end
-    
-    class Baz
-      include MethodAnnotation::Enable
+### Example 2
 
-      args_to_string
-      time_measurement
-      def hoge(arg1, arg2)
-        puts "arg1.class: #{arg1.class}"
-        puts "arg2.class: #{arg2.class}"
-        sleep 3
-      end
-    end
+```ruby
+class TimeMeasurement < MethodAnnotation::Base
+  self.describe = 'measure the processing time of the method'
 
-    Baz.new.hoge(123, { a: 'A' })
-    => arg1.class: String
-    => arg2.class: String
-    => 3.000860474 sec
+  around do |param|
+    start = Time.now
+    return_value = param.original.call(param)
+    puts "#{Time.now - start} sec"
+
+    return_value
+  end
+end
+
+class Bar
+  include MethodAnnotation::Enable
+
+  time_measurement
+
+  def hoge(sleep_sec)
+    sleep sleep_sec
+  end
+end
+
+Bar.new.hoge(5)
+# => 5.001199044 sec
+```
+
+### Example 3
+
+```ruby
+class ArgsToString < MethodAnnotation::Base
+  self.describe = 'convert the arguments to string'
+
+  around do |param|
+    remake_param = MethodAnnotation::Parameter.new(args: param.args.map(&:to_s))
+    param.original.call(remake_param)
+  end
+end
+
+class Baz
+  include MethodAnnotation::Enable
+
+  args_to_string
+  time_measurement
+
+  def hoge(arg1, arg2)
+    puts "arg1.class: #{arg1.class}"
+    puts "arg2.class: #{arg2.class}"
+    sleep 3
+  end
+end
+
+Baz.new.hoge(123, { a: 'A' })
+# => arg1.class: String
+# => arg2.class: String
+# => 3.000860474 sec
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/console` for an interactive prompt
+that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release` to create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the
+version number in `version.rb`, and then run `bundle exec rake release` to create a git tag for the version, push git
+commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
