@@ -21,13 +21,9 @@ Note translation function can also be added simply tagged to only cross-processi
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = Gem::Requirement.create('~> 2.7.0')
+  spec.required_ruby_version = Gem::Requirement.create('>= 2.7.0')
   spec.licenses = ['MIT']
 
-  spec.add_development_dependency "bundler", "~> 2.1"
-  spec.add_development_dependency "rake", "~> 13.0"
-  spec.add_development_dependency "rspec", "~> 3.9.0"
-
   # add
-  spec.add_dependency "activesupport", "~> 6.0.2"
+  spec.add_dependency "activesupport", ">= 6.0.2", "< 8.0"
 end
